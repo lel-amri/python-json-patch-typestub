@@ -14,5 +14,8 @@ dependencies = [
     "jsonpatch ==1.32",
 ]
 
+[project.urls]
+Source = "https://github.com/lel-amri/python-json-patch-typestub"
+
 [tool.flit.module]
 name = "jsonpatch-stubs"
