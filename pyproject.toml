@@ -7,9 +7,19 @@ name = "types-jsonpatch"
 version = "0.1.0-alpha.0"
 description = "Type stub for jsonpatch"
 authors = [{name = "Léo El Amri", email = "leo@superlel.me"}]
-requires-python = ">=3.8"
+requires-python = "~=3.8"
 license = {file = "LICENSE"}
-classifiers = ["License :: OSI Approved :: MIT License"]
+keywords = ["jsonpatch", "typing", "stub"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Typing :: Stubs Only",
+]
 dependencies = [
     "jsonpatch ==1.32",
 ]
