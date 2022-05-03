@@ -13,12 +13,15 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     TypedDict,
     TypeVar,
     Union
 )
 
 from _typeshed import Incomplete
+
+import jsonpointer
 
 _K = TypeVar("_K")
 _K_contra = TypeVar("_K_contra", contravariant=True)
@@ -88,7 +91,7 @@ RFC6902_OPERATION_OBJECT = Union[
     RFC6902_OPERATION_OBJECT_COPY,
     RFC6902_OPERATION_OBJECT_TEST,
 ]
-_JSONPOINTER = type
+_JSONPOINTER = Type[jsonpointer.JsonPointer]
 class INDEXABLE(typing.Protocol[_K_contra, _V_co]):
     def __getitem__(self, index: _K_contra) -> _V_co: ...
 _JSON_OBJECT_KEY = str
@@ -106,6 +109,8 @@ _JSONPOINTER_SUPPORTED_ROOT_VALUES = Union[
     Sequence["_JSONPOINTER_SUPPORTED_VALUES"],
     INDEXABLE[_JSON_OBJECT_KEY, "_JSONPOINTER_SUPPORTED_VALUES"],
 ]
+_JSON__LOADS = Callable[[Union[str, bytes, bytearray]], _JSON_VALUE]
+_JSON__DUMPS = Callable[[_JSON_VALUE], str]
 
 class JsonPatchException(Exception): ...
 class InvalidJsonPatch(JsonPatchException): ...
@@ -128,10 +133,10 @@ def make_patch(
 ): ...
 
 class PatchOperation:
-    pointer_cls: Incomplete
-    location: Incomplete
-    pointer: Incomplete
-    operation: Incomplete
+    pointer_cls: Optional[_JSONPOINTER]
+    location: str
+    pointer: _JSONPOINTER
+    operation: RFC6902_OPERATION_OBJECT
     def __init__(
         self,
         operation: RFC6902_OPERATION_OBJECT,
@@ -176,8 +181,8 @@ class JsonPatch:
     json_dumper: Incomplete
     json_loader: Incomplete
     operations: Incomplete
-    patch: Incomplete
-    pointer_cls: Incomplete
+    patch: Sequence[RFC6902_OPERATION_OBJECT]
+    pointer_cls: Optional[_JSONPOINTER]
     def __init__(
         self,
         patch: Sequence[RFC6902_OPERATION_OBJECT],
@@ -192,40 +197,43 @@ class JsonPatch:
     @classmethod
     @typing.overload
     def from_string(
-        cls, patch_str: Union[str, bytes, bytearray], loads: None = ..., pointer_cls=...
+        cls,
+        patch_str: Union[str, bytes, bytearray],
+        loads: None = ...,
+        pointer_cls: Optional[_JSONPOINTER] = ...,
     ) -> "JsonPatch": ...
     @classmethod
     @typing.overload
     def from_string(
         cls,
         patch_str: _T,
-        loads: Callable[[_T], Any] = ...,
+        loads: Callable[[_T], RFC6902_OPERATION_OBJECT] = ...,
         pointer_cls: Optional[_JSONPOINTER] = ...,
     ) -> "JsonPatch": ...
     @classmethod
     def from_diff(
         cls,
-        src,
-        dst,
+        src: _JSONPOINTER_SUPPORTED_VALUES,
+        dst: _JSONPOINTER_SUPPORTED_VALUES,
         optimization: bool = ...,
-        dumps: Incomplete | None = ...,
-        pointer_cls=...,
+        dumps: Optional[_JSON__DUMPS] = ...,
+        pointer_cls: Optional[_JSONPOINTER] = ...,
     ): ...
-    def to_string(self, dumps: Incomplete | None = ...): ...
-    def apply(self, obj, in_place: bool = ...): ...
+    def to_string(self, dumps: Optional[_JSON__DUMPS] = ...): ...
+    def apply(self, obj: _JSONPOINTER_SUPPORTED_ROOT_VALUES, in_place: bool = ...): ...
 
 class DiffBuilder:
     dumps: Incomplete
     pointer_cls: Incomplete
     index_storage: Incomplete
     index_storage2: Incomplete
-    src_doc: Incomplete
-    dst_doc: Incomplete
+    src_doc: _JSONPOINTER_SUPPORTED_VALUES
+    dst_doc: _JSONPOINTER_SUPPORTED_VALUES
     def __init__(
         self,
         src_doc: _JSONPOINTER_SUPPORTED_VALUES,
         dst_doc: _JSONPOINTER_SUPPORTED_VALUES,
-        dumps=...,
+        dumps: Optional[_JSON__DUMPS] = ...,
         pointer_cls: Optional[_JSONPOINTER] = ...,
     ) -> None: ...
     def store_index(self, value, index, st) -> None: ...
